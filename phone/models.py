@@ -23,3 +23,8 @@ class CallStartRecord(CallRecord):
     source = models.CharField(max_length=11)
     destination = models.CharField(max_length=11)
     type = models.CharField(max_length=5, default="start")
+
+
+class CallEndRecord(CallRecord):
+    """This calss represents the CallEndRecord model."""
+    type = models.CharField(max_length=5, default="end")
