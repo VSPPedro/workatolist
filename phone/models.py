@@ -19,12 +19,12 @@ class CallRecord(models.Model):
 
 
 class CallStartRecord(CallRecord):
-    """This calss represents the CallStartRecord model."""
+    """This class represents the CallStartRecord model."""
     source = models.CharField(max_length=11)
     destination = models.CharField(max_length=11)
     type = models.CharField(max_length=5, default="start")
 
 
 class CallEndRecord(CallRecord):
-    """This calss represents the CallEndRecord model."""
+    """This class represents the CallEndRecord model."""
     type = models.CharField(max_length=5, default="end")
