@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import CallStartRecord
 from .models import CallEndRecord
+from .models import CallReport
 
 
 class CallStartRecordSerializer(serializers.ModelSerializer):
@@ -28,4 +29,18 @@ class CallEndRecordSerializer(serializers.ModelSerializer):
             'type',
             'timestamp',
             'call_id'
+        )
+
+
+class CallReportSerializer(serializers.ModelSerializer):
+    """Serializer to map the Model instance into JSON format."""
+
+    class Meta:
+        model = CallReport
+        fields = (
+            'destination',
+            'start_date',
+            'start_time',
+            'duration',
+            'price'
         )

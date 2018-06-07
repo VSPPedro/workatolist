@@ -33,7 +33,7 @@ LANGUAGE plpgsql;
 
 # Function to calculate the cost of a call
 function_calculate_cost = """
-CREATE OR REPLACE FUNCTION calculate_cost (integer, time) RETURNS float AS $$
+CREATE OR REPLACE FUNCTION calculate_cost (integer, time) RETURNS decimal(10,2) AS $$
 DECLARE
     -- Parameters of the function
     call_duration_in_seconds ALIAS FOR $1;
@@ -42,8 +42,8 @@ DECLARE
     standard_time_call_start CONSTANT integer := EXTRACT(EPOCH FROM time '06:00:00');
     standard_time_call_end CONSTANT integer := EXTRACT(EPOCH FROM time '22:00:00');
     midnight CONSTANT integer := EXTRACT(EPOCH FROM time '24:00:00');
-    standing_charge CONSTANT float := 0.36;
-    charge_minute CONSTANT float := 0.09;
+    standing_charge CONSTANT decimal(10,2) := 0.36;
+    charge_minute CONSTANT decimal(10,2) := 0.09;
     day_in_seconds CONSTANT integer := 86400;
     minute_in_seconds integer := 60;
     -- Variables of the function
@@ -51,7 +51,7 @@ DECLARE
     end_time_in_seconds integer := start_time_in_seconds + call_duration_in_seconds;
     start_time integer;
     end_time integer;
-    cost float := 0.0;
+    cost_call decimal(10,2) := 0;
     -- Get the rest of seconds to complete one minute.
     rest integer := minute_in_seconds - EXTRACT(second FROM start_call);
 BEGIN
@@ -67,9 +67,9 @@ BEGIN
         -- Calculate the cost using only the minutes that are inside the standard time call
         call_duration_in_seconds := end_time_in_seconds - midnight + rest;
         -- Calculate the cost using only the minutes that are inside the standard time call
-        cost := ((standard_time_call_end - start_time_in_seconds) / minute_in_seconds) * charge_minute;
+        cost_call := ((standard_time_call_end - start_time_in_seconds) / minute_in_seconds) * charge_minute;
         -- Recursion: calculate the remain cost of the phone call.
-        return cost + calculate_cost(call_duration_in_seconds, '00:00:00');
+        return cost_call + calculate_cost(call_duration_in_seconds, '00:00:00');
     ELSEIF  end_time_in_seconds < standard_time_call_start THEN
         end_time_in_seconds := standard_time_call_start;
     ELSIF end_time_in_seconds > standard_time_call_end THEN
@@ -77,10 +77,10 @@ BEGIN
     END IF;
 
     -- Calculate the cost using only the minutes that are inside the standard time call
-    cost := ((end_time_in_seconds - start_time_in_seconds) / minute_in_seconds) * charge_minute;
+    cost_call := ((end_time_in_seconds - start_time_in_seconds) / minute_in_seconds) * charge_minute;
 
     -- Return the phone call cost
-    return  cost + standing_charge;
+    return  cost_call + standing_charge;
 END;
 $$
 LANGUAGE plpgsql;
@@ -102,15 +102,16 @@ WITH ORDERED AS
 )
 SELECT
   rn AS id,
-  call_source,
-  call_destination,
+  call_source AS source,
+  call_destination AS destination,
   start_date,
   start_time,
-  seconds_to_hours(call_duration_in_seconds) AS call_duration,
-  calculate_cost(call_duration_in_seconds, start_time) AS calculate_cost
+  seconds_to_hours(call_duration_in_seconds) AS duration,
+  calculate_cost(call_duration_in_seconds, start_time) AS price
 FROM
   ORDERED;
 """
+
 
 class Migration(migrations.Migration):
 
@@ -125,10 +126,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('source', models.CharField(max_length=11)),
                 ('destination', models.CharField(max_length=11)),
-                ('call_start_date', models.DateField(blank=True, default=datetime.datetime.now)),
-                ('call_start_time', models.TimeField()),
-                ('call_duration', models.TimeField()),
-                ('call_price', models.FloatField()),
+                ('start_date', models.DateField(blank=True, default=datetime.datetime.now)),
+                ('start_time', models.TimeField()),
+                ('duration', models.TimeField()),
+                ('price', models.DecimalField(max_digits=10, decimal_places=2)),
             ],
             options={
                 'managed': False,

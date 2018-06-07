@@ -34,11 +34,10 @@ class CallReport(models.Model):
     """This class represents the CallReport model."""
     source = models.CharField(max_length=11)
     destination = models.CharField(max_length=11)
-    call_start_date = models.DateField(default=datetime.now, blank=True)
-    call_start_time = models.TimeField()
-    call_duration = models.TimeField()
-    call_price = models.FloatField()
+    start_date = models.DateField(default=datetime.now, blank=True)
+    start_time = models.TimeField()
+    duration = models.TimeField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         managed = False
-        db_table = 'phone_callreport'
