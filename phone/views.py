@@ -63,7 +63,6 @@ def bill(request, phone_number, year, month):
             .format(phone_number, period)
         }
     else:
-        print(queryset[0].price)
         response_json = build_json(phone_number, period, queryset)
 
     return Response(response_json)
