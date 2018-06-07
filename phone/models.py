@@ -37,7 +37,7 @@ class CallReport(models.Model):
     start_date = models.DateField(default=datetime.now, blank=True)
     start_time = models.TimeField()
     duration = models.TimeField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.CharField(max_length=255)
 
     class Meta:
         managed = False
