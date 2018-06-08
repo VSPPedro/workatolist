@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+gunicorn = "*"
 djangorestframework = "==3.8.2"
 "flake8" = "==3.5.0"
 mccabe = "==0.6.1"
@@ -13,7 +14,6 @@ pyflakes = "==1.6.0"
 pytz = "==2018.4"
 Django = "==2.0.6"
 django-heroku = "*"
-gunicorn = "*"
 
 [dev-packages]
 
